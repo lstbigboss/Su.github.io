@@ -16,16 +16,16 @@
         }
       }
     </script>
-    <!-- MediaPipe Hands - 备用方案：通过script标签预加载 -->
+    <!-- MediaPipe Hands（只能用 script 标签加载，不能是 ES Module） -->
     <script
       src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469404/hands.js"
-      crossorigin="anonymous"
-      onerror="console.warn('MediaPipe Hands script标签加载失败，将使用动态导入')"
+      onload="console.log('✅ MediaPipe Hands script 加载成功'); console.log('window.Hands:', typeof window.Hands);"
+      onerror="console.error('❌ MediaPipe Hands script 加载失败')"
     ></script>
     <script
       src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1640029074/camera_utils.js"
-      crossorigin="anonymous"
-      onerror="console.warn('MediaPipe Camera script标签加载失败，将使用动态导入')"
+      onload="console.log('✅ MediaPipe Camera script 加载成功'); console.log('window.Camera:', typeof window.Camera);"
+      onerror="console.error('❌ MediaPipe Camera script 加载失败')"
     ></script>
   </head>
   <body>

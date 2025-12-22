@@ -11,169 +11,106 @@ export class GestureManager {
   }
 
   async init() {
-    try {
-      console.log('开始加载MediaPipe Hands...');
+    console.log("🖐️ 开始加载 MediaPipe Hands...");
+
+    // MediaPipe Hands 必须通过 script 标签加载，不能使用 import
+    // 等待 script 标签加载完成（最多等待5秒）
+    let waitCount = 0;
+    let Hands = null;
+    
+    while (waitCount < 50) {
+      // 检查可能的全局变量名
+      Hands = window.Hands || 
+              window.MediaPipeHands?.Hands ||
+              (window.MediaPipeHands && typeof window.MediaPipeHands === 'function' ? window.MediaPipeHands : null);
       
-      // 首先检查是否已经通过script标签加载（全局对象）
-      if (typeof window !== 'undefined' && window.Hands) {
-        console.log('✅ 发现全局Hands对象（通过script标签加载）');
-        const Hands = window.Hands;
-        
-        this.hands = new Hands({
-          locateFile: (file) => {
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469404/${file}`;
-          },
-        });
-        
-        this.hands.setOptions({
-          maxNumHands: 2,
-          modelComplexity: 1,
-          minDetectionConfidence: 0.5,
-          minTrackingConfidence: 0.5,
-        });
-
-        this.hands.onResults((results) => {
-          this.rawResults = results;
-        });
-
-        if (!this.videoElement) {
-          this.videoElement = document.createElement('video');
-          this.videoElement.style.display = 'none';
-          this.videoElement.autoplay = true;
-          this.videoElement.playsInline = true;
-          document.body.appendChild(this.videoElement);
-        }
-        
-        console.log('GestureManager初始化完成（使用全局对象）');
-        return;
+      if (Hands) {
+        console.log("✅ 找到 MediaPipe Hands 全局对象");
+        break;
       }
       
-      // 如果没有全局对象，尝试动态导入
-      console.log('未找到全局对象，尝试动态导入...');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      waitCount++;
       
-      // 尝试多个CDN源
-      const cdnUrls = [
-        'https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469404/hands.js',
-        'https://unpkg.com/@mediapipe/hands@0.4.1675469404/hands.js'
-      ];
-      
-      let handsModule = null;
-      let lastError = null;
-      
-      for (const url of cdnUrls) {
-        try {
-          console.log(`尝试从 ${url} 加载...`);
-          handsModule = await import(url);
-          console.log(`✅ 成功从 ${url} 加载`);
-          console.log('MediaPipe模块加载完成，模块内容:', Object.keys(handsModule));
-          break;
-        } catch (err) {
-          console.warn(`❌ 从 ${url} 加载失败:`, err.message);
-          lastError = err;
-          continue;
-        }
+      if (waitCount % 10 === 0) {
+        console.log(`等待 MediaPipe Hands 加载... (${waitCount * 0.1}秒)`);
       }
-      
-      if (!handsModule) {
-        throw new Error(`所有CDN都加载失败。请检查网络连接或尝试刷新页面。\n最后一个错误: ${lastError?.message || '未知错误'}`);
-      }
-      
-      // 尝试多种方式获取Hands类
-      const Hands = handsModule.Hands || 
-                    handsModule.default?.Hands ||
-                    (handsModule.default && typeof handsModule.default === 'function' ? handsModule.default : null) ||
-                    window.Hands; // 最后尝试全局对象
-      
-      if (!Hands) {
-        console.error('无法找到Hands类。模块导出:', handsModule);
-        throw new Error('MediaPipe Hands模块加载失败：无法找到Hands类');
-      }
-      
-      console.log('✅ 成功获取Hands类');
-
-      this.hands = new Hands({
-        locateFile: (file) => {
-          // 使用jsdelivr CDN作为主要源
-          return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469404/${file}`;
-        },
-      });
-
-      this.hands.setOptions({
-        maxNumHands: 2,
-        modelComplexity: 1,
-        minDetectionConfidence: 0.5,
-        minTrackingConfidence: 0.5,
-      });
-
-      this.hands.onResults((results) => {
-        this.rawResults = results;
-      });
-
-      if (!this.videoElement) {
-        this.videoElement = document.createElement('video');
-        this.videoElement.style.display = 'none';
-        this.videoElement.autoplay = true;
-        this.videoElement.playsInline = true;
-        document.body.appendChild(this.videoElement);
-      }
-      
-      console.log('GestureManager初始化完成');
-    } catch (error) {
-      console.error('GestureManager初始化失败:', error);
-      throw error;
     }
+
+    if (!Hands) {
+      console.error("❌ 无法找到 MediaPipe Hands 全局对象");
+      console.error("检查 window 对象中相关的键:", Object.keys(window).filter(k => 
+        k.toLowerCase().includes('hand') || 
+        k.toLowerCase().includes('mediapipe') ||
+        k.toLowerCase().includes('mp')
+      ));
+      throw new Error("❌ MediaPipe Hands 未通过 script 标签加载。请检查 index.html 中的 script 标签是否正确加载。");
+    }
+
+    this.hands = new Hands({
+      locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469404/${file}`
+    });
+
+    this.hands.setOptions({
+      maxNumHands: 2,
+      modelComplexity: 1,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5
+    });
+
+    this.hands.onResults((results) => {
+      this.rawResults = results;
+    });
+
+    if (!this.videoElement) {
+      this.videoElement = document.createElement('video');
+      this.videoElement.style.display = 'none';
+      this.videoElement.autoplay = true;
+      this.videoElement.playsInline = true;
+      document.body.appendChild(this.videoElement);
+    }
+
+    this.isInitialized = true;
+    console.log("✅ MediaPipe Hands 初始化完成");
   }
 
   async startCamera() {
     try {
-      console.log('开始启动摄像头...');
+      console.log('📷 开始启动摄像头...');
       
       if (!this.hands) {
         await this.init();
       }
 
-      console.log('加载Camera工具...');
+      // Camera 也必须通过 script 标签加载
+      // 等待 script 标签加载完成（最多等待5秒）
+      let waitCount = 0;
+      let Camera = null;
       
-      // 尝试多个CDN源
-      const cameraUrls = [
-        'https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1640029074/camera_utils.js',
-        'https://unpkg.com/@mediapipe/camera_utils@0.3.1640029074/camera_utils.js',
-        'https://esm.sh/@mediapipe/camera_utils@0.3.1640029074'
-      ];
-      
-      let cameraModule = null;
-      let lastCameraError = null;
-      
-      for (const url of cameraUrls) {
-        try {
-          console.log(`尝试从 ${url} 加载Camera...`);
-          cameraModule = await import(url);
-          console.log(`✅ 成功从 ${url} 加载Camera`);
-          console.log('Camera模块加载完成，模块内容:', Object.keys(cameraModule));
+      while (waitCount < 50) {
+        Camera = window.Camera ||
+                 window.MediaPipeCamera?.Camera ||
+                 (window.MediaPipeCamera && typeof window.MediaPipeCamera === 'function' ? window.MediaPipeCamera : null);
+        
+        if (Camera) {
+          console.log("✅ 找到 MediaPipe Camera 全局对象");
           break;
-        } catch (err) {
-          console.warn(`❌ 从 ${url} 加载Camera失败:`, err.message);
-          lastCameraError = err;
-          continue;
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 100));
+        waitCount++;
+        
+        if (waitCount % 10 === 0) {
+          console.log(`等待 MediaPipe Camera 加载... (${waitCount * 0.1}秒)`);
         }
       }
-      
-      if (!cameraModule) {
-        throw new Error(`所有CDN都无法加载Camera。最后一个错误: ${lastCameraError?.message || '未知错误'}`);
-      }
-      
-      // 优先尝试全局对象（通过script标签加载）
-      const Camera = window.Camera ||
-                     cameraModule.Camera || 
-                     cameraModule.default?.Camera ||
-                     (cameraModule.default && typeof cameraModule.default === 'function' ? cameraModule.default : null);
-      
+
       if (!Camera) {
-        console.error('无法找到Camera类。模块导出:', cameraModule);
-        throw new Error('Camera工具模块加载失败：无法找到Camera类');
+        console.error("❌ 无法找到 MediaPipe Camera 全局对象");
+        console.error("检查 window 对象中相关的键:", Object.keys(window).filter(k => k.toLowerCase().includes('camera')));
+        throw new Error("❌ MediaPipe Camera 未通过 script 标签加载。请检查 index.html 中的 script 标签是否正确加载。");
       }
-      
-      console.log('✅ 成功获取Camera类');
 
       this.camera = new Camera(this.videoElement, {
         onFrame: async () => {
@@ -185,13 +122,12 @@ export class GestureManager {
         height: 480,
       });
 
-      console.log('尝试启动摄像头...');
       await this.camera.start();
       this.isInitialized = true;
-      console.log('摄像头启动成功！');
+      console.log('✅ 摄像头启动成功！');
       return true;
     } catch (error) {
-      console.error('摄像头启动失败:', error);
+      console.error('❌ 摄像头启动失败:', error);
       console.error('错误详情:', error.stack);
       return false;
     }
