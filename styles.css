@@ -1,0 +1,159 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  background-color: #050505;
+  font-family: 'Times New Roman', serif;
+}
+
+#canvas-container {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+
+/* 浪漫的文字层 */
+#overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  text-align: center;
+  pointer-events: none;
+  z-index: 10;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+#overlay > * {
+  pointer-events: auto;
+}
+
+h1 {
+  font-size: 3rem;
+  margin: 0;
+  font-weight: lighter;
+  letter-spacing: 5px;
+  background: linear-gradient(to right, #fff, #ffd700, #fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: fadeIn 3s ease-in-out;
+}
+
+p {
+  font-size: 1.2rem;
+  margin-top: 10px;
+  color: #ccc;
+  animation: fadeIn 5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.camera-permission {
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.camera-permission button {
+  margin-top: 10px;
+  padding: 10px 20px;
+  background: #ffd700;
+  color: #050505;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+.camera-permission button:hover {
+  background: #ffed4e;
+}
+
+.custom-text-input {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.custom-text-input label {
+  display: block;
+  margin-bottom: 10px;
+  color: #fff;
+}
+
+.custom-text-input input {
+  padding: 8px;
+  font-size: 1rem;
+  border: 1px solid #ffd700;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  width: 200px;
+}
+
+.custom-text-input button {
+  margin-left: 10px;
+  padding: 8px 15px;
+  background: #ffd700;
+  color: #050505;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.photo-modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.photo-modal img {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+}
+
+.close-modal {
+  position: absolute;
+  top: 20px;
+  right: 40px;
+  color: #fff;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.close-modal:hover {
+  color: #ffd700;
+}
+
+/* 隐藏覆盖层（当摄像头启动后） */
+#overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 2s;
+}

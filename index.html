@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <title>Merry Christmas, My Love</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+    <!-- MediaPipe Hands - 备用方案：通过script标签预加载 -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469404/hands.js"
+      crossorigin="anonymous"
+      onerror="console.warn('MediaPipe Hands script标签加载失败，将使用动态导入')"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1640029074/camera_utils.js"
+      crossorigin="anonymous"
+      onerror="console.warn('MediaPipe Camera script标签加载失败，将使用动态导入')"
+    ></script>
+  </head>
+  <body>
+    <div id="overlay">
+      <h1>Merry Christmas</h1>
+      <p>To my only one</p>
+      <div id="camera-permission" class="camera-permission">
+        <p>请允许访问摄像头以使用手势控制</p>
+        <button id="start-camera-btn">启用摄像头</button>
+      </div>
+      <div
+        id="custom-text-input"
+        class="custom-text-input"
+        style="display: none"
+      >
+        <label>自定义文字 (比心手势显示):</label>
+        <input
+          type="text"
+          id="heart-text-input"
+          value="MERRY XMAS"
+          maxlength="20"
+        />
+        <button id="save-text-btn">保存</button>
+      </div>
+    </div>
+    <div id="canvas-container"></div>
+    <div id="photo-modal" class="photo-modal" style="display: none">
+      <span class="close-modal">&times;</span>
+      <img id="modal-image" src="" alt="Photo" />
+    </div>
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
