@@ -55,3 +55,4 @@ export class MusicController {
     this.audioManager.setVolume(volume);
   }
 }
+
